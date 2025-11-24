@@ -28,12 +28,34 @@ if [ -z "$CLAUDE_OAUTH_TOKEN" ]; then
     echo "Run 'claude-code auth status' locally to get your OAuth token"
 fi
 
-echo "Creating firewall rule for Tailscale UDP optimization (if not exists)..."
+echo "Creating firewall rules for Tailscale (if not exist)..."
+
+# Allow Tailscale UDP for better performance
 gcloud compute firewall-rules create tailscale-allow-udp \
     --allow udp:41641 \
     --target-tags tailscale-access \
     --description "Allow Tailscale UDP optimization" \
-    2>/dev/null || echo "Firewall rule likely exists, skipping."
+    2>/dev/null || echo "Tailscale UDP rule exists, skipping."
+
+# Deny all external SSH access (priority 900 beats default-allow-ssh at 65534)
+gcloud compute firewall-rules create deny-external-ssh-tailscale \
+    --action deny \
+    --rules tcp:22 \
+    --source-ranges 0.0.0.0/0 \
+    --target-tags tailscale-access \
+    --priority 900 \
+    --description "Deny external SSH to Tailscale-only instances" \
+    2>/dev/null || echo "SSH deny rule exists, skipping."
+
+# Deny all other external ingress except Tailscale UDP
+gcloud compute firewall-rules create deny-all-ingress-tailscale \
+    --action deny \
+    --rules all \
+    --source-ranges 0.0.0.0/0 \
+    --target-tags tailscale-access \
+    --priority 1000 \
+    --description "Deny all external ingress except Tailscale UDP to tagged instances" \
+    2>/dev/null || echo "Deny-all rule exists, skipping."
 
 echo "Deploying $INSTANCE_NAME to $ZONE..."
 
@@ -63,6 +85,5 @@ echo ""
 echo "Connect with:"
 echo "  ssh max@gcp-dev-box"
 echo ""
-echo "To restrict access solely to Tailscale, ensure your GCP Firewall rules do not allow TCP:22 from 0.0.0.0/0 to tag 'tailscale-access'."
-echo "By default, GCP's 'default-allow-ssh' rule might allow this."
-echo "You can delete the default rule or create a higher priority deny rule."
+echo "Security: Firewall rules block all external ingress except Tailscale UDP (port 41641)."
+echo "The instance is only accessible via Tailscale."
