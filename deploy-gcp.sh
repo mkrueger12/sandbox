@@ -2,11 +2,11 @@
 set -e
 
 # Configuration
-INSTANCE_NAME="gcp-dev-box"
+INSTANCE_NAME="dev-box"
 ZONE="us-west4-a"
-MACHINE_TYPE="e2-small"
-IMAGE_FAMILY="ubuntu-2204-lts"
-IMAGE_PROJECT="ubuntu-os-cloud"
+MACHINE_TYPE="e2-standard-4"
+IMAGE_FAMILY="debian-13"
+IMAGE_PROJECT="debian-cloud"
 
 # Check for required environment variables
 if [ -z "$TS_AUTHKEY" ]; then

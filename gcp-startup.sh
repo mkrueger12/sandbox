@@ -70,12 +70,39 @@ mise install node@22.11.0
 mise use -g python@3.12.7
 mise use -g node@22.11.0
 
+# Install uv (fast Python package installer)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install Bun (fast JavaScript runtime)
+curl -fsSL https://bun.sh/install | bash
+
 # Install AI Tools via npm (managed by mise)
-mise exec -- npm install -g @sourcegraph/amp@latest @anthropic-ai/claude-code@latest @ast-grep/cli@latest
+mise exec -- npm install -g @sourcegraph/amp@latest @anthropic-ai/claude-code@latest @ast-grep/cli@latest @ast-grep/napi
+
+# Add npm global bin to PATH permanently
+NPM_GLOBAL_BIN=$(mise exec -- npm config get prefix)/bin
+echo "export PATH=\"$NPM_GLOBAL_BIN:\$PATH\"" >> ~/.bashrc
+
+# Add uv and bun to PATH permanently
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.bashrc
 EOF
 
-# 3. Create Workspace Directories
-mkdir -p /home/max/workspace /home/max/.claude
+# 3. Create Workspace Directories and Setup .claude Config from Git Repo
+mkdir -p /home/max/workspace
+
+# Clone the sandbox repo to get .claude configuration
+cd /tmp
+git clone https://github.com/mkrueger12/sandbox.git
+if [ -d "/tmp/sandbox/.claude" ]; then
+    cp -r /tmp/sandbox/.claude /home/max/
+    echo "Claude configuration cloned from GitHub repo"
+else
+    mkdir -p /home/max/.claude
+    echo "Warning: No .claude directory found in repo"
+fi
+rm -rf /tmp/sandbox
+
 chown -R max:max /home/max/workspace /home/max/.claude
 
 # 4. Configure GitHub Credentials

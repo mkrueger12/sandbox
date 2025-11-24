@@ -1,9 +1,10 @@
 FROM cgr.dev/chainguard/wolfi-base:latest
 
 # Install system packages available in Wolfi repos
+# Pin Python 3.12 (latest stable version)
 RUN apk update && apk add --no-cache \
-    python-3 \
-    py3-pip \
+    python-3.12=3.12.12-r2 \
+    py3.12-pip=25.3-r2 \
     nodejs \
     npm \
     git \
@@ -14,7 +15,9 @@ RUN apk update && apk add --no-cache \
     wget \
     bash \
     openssh-client \
-    unzip
+    unzip && \
+    ln -sf /usr/bin/python3.12 /usr/bin/python3 && \
+    ln -sf /usr/bin/python3.12 /usr/bin/python
 
 # Install uv (fast Python package installer)
 RUN mkdir -p /usr/local/bin && \
@@ -50,7 +53,8 @@ RUN wget https://pkgs.tailscale.com/stable/tailscale_1.90.8_arm64.tgz && \
 
 # Note: Claude Code and ampcode are interactive CLI tools typically run from host
 # Uncomment if you need them:
-# RUN curl -fsSL https://ampcode.com/install.sh | bash
+RUN curl -fsSL https://ampcode.com/install.sh | bash
+RUN curl -fsSL https://claude.ai/install.sh | bash
 
 # Create workspace directory
 WORKDIR /workspace
@@ -60,35 +64,9 @@ RUN addgroup -g 1000 developer && \
     adduser -D -u 1000 -G developer developer && \
     chown -R developer:developer /workspace
 
-# Configure Claude Code MCP servers and settings for the developer user
-RUN mkdir -p /home/developer/.claude && \
-    cat > /home/developer/.claude/.mcp.json <<'EOF' && \
-    cat > /home/developer/.claude/settings.json <<'EOF2' && \
-    chown -R developer:developer /home/developer/.claude
-{
-  "mcpServers": {
-    "deepwiki": {
-      "type": "http",
-      "url": "https://mcp.deepwiki.com/mcp"
-    },
-    "linear-server": {
-      "type": "http",
-      "url": "https://mcp.linear.app/mcp"
-    }
-  }
-}
-EOF
-{
-  "env": {
-    "CLAUDE_CODE_ENABLE_TELEMETRY": "0",
-    "DISABLE_TELEMETRY": "1"
-  },
-  "includeCoAuthoredBy": false,
-  "permissions": {
-    "defaultMode": "bypassPermissions"
-  }
-}
-EOF2
+# Configure Claude Code from repo
+COPY .claude /home/developer/.claude
+RUN chown -R developer:developer /home/developer/.claude
 
 USER developer
 
