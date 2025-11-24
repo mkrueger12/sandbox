@@ -1,0 +1,32 @@
+# mise configuration file
+# This file defines the tool versions for this project
+# mise will automatically activate these versions when you cd into this directory
+
+[tools]
+# Python version (can be changed easily)
+python = "3.12.7"
+
+# Node.js version (can be changed easily)
+node = "22.11.0"
+
+# Add other tools as needed, for example:
+# go = "1.21.5"
+# rust = "1.75.0"
+# ruby = "3.2.0"
+
+# You can also specify multiple versions:
+# python = ["3.12.7", "3.11.7"]  # First one is default
+
+# Environment variables (optional)
+# [env]
+# DATABASE_URL = "postgresql://localhost/mydb"
+# API_KEY = "your-api-key"
+
+# Tasks (optional) - run with: mise run <task>
+# [tasks.test]
+# run = "pytest"
+# description = "Run Python tests"
+
+# [tasks.dev]
+# run = "npm run dev"
+# description = "Start development server"
