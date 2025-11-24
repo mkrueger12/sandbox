@@ -49,7 +49,8 @@ gcloud compute instances create "$INSTANCE_NAME" \
     --image-project="$IMAGE_PROJECT" \
     --metadata-from-file=startup-script=./gcp-startup.sh \
     --metadata="$METADATA" \
-    --tags=tailscale-access
+    --tags=tailscale-access \
+    --no-address
 
 # Clean up old SSH host keys to avoid verification errors on redeployment
 echo "Removing old SSH host keys for $INSTANCE_NAME..."

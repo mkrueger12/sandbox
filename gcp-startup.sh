@@ -84,7 +84,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 curl -fsSL https://bun.sh/install | bash
 
 # Install AI Tools via npm (managed by mise)
-mise exec -- npm install -g @sourcegraph/amp@latest @anthropic-ai/claude-code@latest @ast-grep/cli@latest @ast-grep/napi
+mise exec -- npm install -g @sourcegraph/amp@latest @anthropic-ai/claude-code@latest @ast-grep/cli@latest @ast-grep/napi vercel
 
 # Add npm global bin to PATH permanently
 NPM_GLOBAL_BIN=$(mise exec -- npm config get prefix)/bin
