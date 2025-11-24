@@ -56,12 +56,19 @@ curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of
 && apt-get update \
 && apt-get install gh -y
 
+# Install zsh and fortune
+apt-get install -y zsh fortune-mod
+
 # 2. Install User Tools (mise, languages, AI tools)
 # We run this as max to install into /home/max
 sudo -u max bash << 'EOF'
+# Install oh-my-zsh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+
 # Install mise
 curl https://mise.run | sh
 echo 'eval "$(~/.local/bin/mise activate bash)"' >> ~/.bashrc
+echo 'eval "$(~/.local/bin/mise activate zsh)"' >> ~/.zshrc
 export PATH="/home/max/.local/bin:$PATH"
 
 # Install Python and Node.js
@@ -86,7 +93,48 @@ echo "export PATH=\"$NPM_GLOBAL_BIN:\$PATH\"" >> ~/.bashrc
 # Add uv and bun to PATH permanently
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.bashrc
+
+# Configure zsh with plugins and settings
+cat > ~/.zshrc << 'ZSHEOF'
+# Path to your oh-my-zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
+
+# Set theme
+ZSH_THEME="robbyrussell"
+
+# Which plugins would you like to load?
+plugins=(git docker gcloud aws azure docker-compose)
+
+source $ZSH/oh-my-zsh.sh
+
+# User configuration
+eval "$(~/.local/bin/mise activate zsh)"
+
+# Add npm global bin to PATH
+NPM_GLOBAL_BIN=$(mise exec -- npm config get prefix)/bin
+export PATH="$NPM_GLOBAL_BIN:$PATH"
+
+# Add uv and bun to PATH
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.bun/bin:$PATH"
+
+# Add personal bin to PATH
+export PATH="$HOME/bin:$PATH"
+
+# Aliases
+alias c="claude"
+alias cds="claude --dangerously-skip-permissions --model claude-sonnet-4-20250514"
+alias ccs="c --continue --dangerously-skip-permissions --model claude-sonnet-4-20250514"
+
+# Run fortune on shell startup
+fortune
+ZSHEOF
+
+# Change default shell to zsh
 EOF
+
+# Change max user's default shell to zsh
+chsh -s /bin/zsh max
 
 # 3. Create Workspace Directories and Setup .claude Config from Git Repo
 mkdir -p /home/max/workspace
