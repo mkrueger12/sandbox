@@ -69,6 +69,7 @@ gcloud compute instances create "$INSTANCE_NAME" \
     --machine-type="$MACHINE_TYPE" \
     --image-family="$IMAGE_FAMILY" \
     --image-project="$IMAGE_PROJECT" \
+    --boot-disk-size=50GB \
     --metadata-from-file=startup-script=./gcp-startup.sh \
     --metadata="$METADATA" \
     --tags=tailscale-access
