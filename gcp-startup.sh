@@ -142,16 +142,36 @@ mkdir -p /home/max/workspace
 # Clone the sandbox repo to get .claude configuration
 cd /tmp
 git clone https://github.com/mkrueger12/sandbox.git
+
+# Copy .claude directory (for CLAUDE.md and other config)
 if [ -d "/tmp/sandbox/.claude" ]; then
     cp -r /tmp/sandbox/.claude /home/max/
-    echo "Claude configuration cloned from GitHub repo"
+    echo "Claude directory copied from GitHub repo"
 else
     mkdir -p /home/max/.claude
     echo "Warning: No .claude directory found in repo"
 fi
+
+# Configure MCP servers in ~/.claude.json (the correct location)
+cat > /home/max/.claude.json << 'CLAUDEJSONEOF'
+{
+  "mcpServers": {
+    "deepwiki": {
+      "type": "http",
+      "url": "https://mcp.deepwiki.com/mcp"
+    },
+    "linear-server": {
+      "type": "http",
+      "url": "https://mcp.linear.app/mcp"
+    }
+  }
+}
+CLAUDEJSONEOF
+echo "MCP servers configured in ~/.claude.json"
+
 rm -rf /tmp/sandbox
 
-chown -R max:max /home/max/workspace /home/max/.claude
+chown -R max:max /home/max/workspace /home/max/.claude /home/max/.claude.json
 
 # 4. Configure GitHub Credentials
 GITHUB_TOKEN=$(curl -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/attributes/github-token 2>/dev/null)
