@@ -46,7 +46,8 @@ apt-get install -y \
     libffi-dev \
     liblzma-dev \
     python3-openssl \
-    ripgrep
+    ripgrep \
+    tmux
 
 # Install GitHub CLI
 type -p curl >/dev/null || apt-get install curl -y
